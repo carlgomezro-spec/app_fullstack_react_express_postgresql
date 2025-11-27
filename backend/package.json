@@ -1,0 +1,28 @@
+{
+  "name": "demo_server",
+  "version": "1.0.0",
+  "description": "Mi primer servidor con Node",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "generate-docs": "jsdoc -c ./jsdoc.json"
+  },
+  "author": "Alejandro Reyes",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "cowsay": "^1.6.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "jsdoc": "^4.0.5",
+    "morgan": "^1.10.1",
+    "nodemon": "^3.1.10"
+  }
+}
