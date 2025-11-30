@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL+'/api/authors' || 'http://localhost:3000/api/authors'; // Usar variable de entorno para la URL base
+const API_URL = import.meta.env.VITE_API_URL+'/authors' || 'http://localhost:3000/api/authors'; // Usar variable de entorno para la URL base
 
 export const getAllAuthors = async () => {
     try {
