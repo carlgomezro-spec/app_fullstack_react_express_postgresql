@@ -33,8 +33,8 @@ const authorsRoutes = require("./routes/authors.routes"); // Importar las rutas 
 
 
 // GET http://localhost:3000/
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+app.get("/api", (req, res) => {
+  res.send("Hello World! Welcome to the API.");
 });
 
 // API
@@ -47,6 +47,14 @@ app.use("/api/authors", authorsRoutes); // Rutas de authors
 app.use('/api-jsdoc', express.static(path.join(__dirname, '/jsondocs')));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+if (process.env.NODE_ENV==="production") {
+  // Servir archivos estáticos del frontend con React
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  // Manejar cualquier ruta que no sea de la API y servir el index.html de React
+  app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+  });
+}
 
 app.use(error404); // Manejo de rutas no encontradas
 
