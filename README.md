@@ -23,7 +23,6 @@ app_fullstack/
 ├── README.md         # Documentación del proyecto
 └── ...
 ```
-
 ---
 
 ## **Comandos Útiles**
@@ -60,47 +59,6 @@ app_fullstack/
    ```bash
    npm start
    ```
-
-### **Ejecutar el frontend individualmente**
-1. Ve a la carpeta `frontend`:
-   ```bash
-   cd frontend
-   ```
-2. Instala las dependencias:
-   ```bash
-   npm install
-   ```
-3. Inicia el servidor en modo desarrollo:
-   ```bash
-   npm run dev
-   ```
-4. Genera el build para producción:
-   ```bash
-   npm run build
-   ```
-5. Previsualiza el build generado:
-   ```bash
-   npm run preview
-   ```
-
----
-
-## **Cargar el Seeder**
-
-El archivo `seeder.js` se utiliza para inicializar la base de datos con datos de ejemplo. Sigue estos pasos para ejecutarlo:
-
-1. Ve a la carpeta `backend`:
-   ```bash
-   cd backend
-   ```
-2. Ejecuta el seeder:
-   ```bash
-   node seeder.js
-   ```
-
-Esto creará las tablas necesarias y las poblará con datos de ejemplo.
-
----
 
 ## Ejecutar el Seeder
 
@@ -147,7 +105,10 @@ Esto ejecutará el script de seed configurado en tu proyecto.
 - **`GET /api/authors`**: Obtiene todos los autores.
 
 ### Variables de entorno necesarias
-Crea un archivo `.env` en la carpeta `backend` con las siguientes variables. Recuerda que esto es un ejemplo y lo tienes que guardar con tus datos:
+
+Hay 3 variables posible que se pueden utilizar. 2 son para pruebas de desarrollo (`.env`, `.env.staging`) y una que simula el entorno de despliegue como el que puedes encontrar en render (`.env.production`)
+
+- **Development**: Archivo `.env` en la carpeta `backend`. Este será el fichero para **lanzar el sistema local sin docker** Recuerda que esto es un ejemplo y lo tienes que guardar con tus datos:
 ```
 # Datos BBDD PostgreSQL
 PG_USER=postgres
@@ -159,20 +120,42 @@ PG_SSL=false
 
 # Servidor
 PORT=3000
+
 # Con docker o en render: NODE_ENV=production
 NODE_ENV=development
 ```
 
-Crea un archivo `.env.production` en la carpeta `backend` con las siguientes variables. Este fichero sirve para emular más adelante el sistema fullstack completo utilizando Docker. Recuerda que esto es un ejemplo y lo tienes que guardar con tus datos:
+- **Staging**: Archivo `.env.staging` en la carpeta `backend`. Este fichero sirve para emular más adelante el sistema fullstack completo utilizando `Docker local + BBDD SQL local`:
 ```
 # Datos BBDD PostgreSQL
 PG_USER=postgres
-# Esta es la IP local de tu ordenador
+# Busca la IP de tu ordenador y cambiala en HOST:
 PG_HOST=192.168.0.21
 PG_DATABASE=postgres
 PG_PASSWORD=123456
 PG_PORT=5433
 PG_SSL=false
+
+# Servidor
+PORT=3000
+# Con docker o en render: NODE_ENV=production
+NODE_ENV=production
+```
+
+NOTA: En PG_HOST no puedes usar `localhost` porque entra en conflicto con el contenedor que creará Docker, porque dentro de el también hay un `localhost`
+
+Para encontrar la IP local de tu ordenador:
+ - [what-is-my-local-ip-address](https://www.whatismybrowser.com/detect/what-is-my-local-ip-address/)
+
+- **Production**: Archivo `.env.production` en la carpeta `backend`. Este fichero sirve para emular más adelante el sistema fullstack completo utilizando Docker + BBDD PostgreSQL desplegada en Render:
+```
+# Datos BBDD PostgreSQL en Render
+PG_USER=demo_bbdd_user
+PG_HOST=dpg-d3mbv2i5bo4t73a67kog-a.frankfurt-postgres.render.com
+PG_DATABASE=demo_bbdd
+PG_PASSWORD=fOT62hej0IY50nR35vq6hXLlVu7fUIJI
+PG_PORT=5432
+PG_SSL=true
 
 # Servidor
 PORT=3000
@@ -198,66 +181,6 @@ NODE_ENV=production
    npm start
    ```
 
-### **Dockerfile del Backend**
-
-El Dockerfile del backend se encuentra en la carpeta `backend/` y está diseñado para crear una imagen ligera y eficiente utilizando Node.js.
-
-#### **Código del Dockerfile**
-```dockerfile
-# Usar una imagen base de Node.js
-FROM node:20-alpine
-
-# Establecer el directorio de trabajo
-WORKDIR /app
-
-# Copiar el archivo package.json y package-lock.json del backend
-COPY package*.json ./
-
-# Instalar dependencias del backend
-RUN npm install
-
-# Copiar el resto de los archivos del backend
-COPY . .
-
-# Exponer el puerto del backend
-EXPOSE 3000
-
-# Establecer las variables de entorno en tiempo de ejecución
-ENV NODE_ENV=production
-
-# Comando para iniciar el backend
-CMD ["npm", "start"]
-```
-
-#### **Explicación del Dockerfile**
-1. **Imagen base**: Se utiliza `node:20-alpine` como imagen base por su ligereza y optimización.
-2. **Directorio de trabajo**: Se establece `/app` como el directorio de trabajo dentro del contenedor.
-3. **Copia de dependencias**: Se copian `package.json` y `package-lock.json` para instalar las dependencias del backend.
-4. **Instalación de dependencias**: Se ejecuta `npm install` para instalar las dependencias necesarias.
-5. **Copia del código fuente**: Se copian todos los archivos restantes del backend al contenedor.
-6. **Exposición del puerto**: Se expone el puerto `3000` para que el backend sea accesible.
-7. **Variables de entorno**: Se establece `NODE_ENV=production` para optimizar el rendimiento en producción.
-8. **Comando de inicio**: Se utiliza `npm start` para iniciar el servidor del backend.
-
-#### **Construcción y ejecución**
-Para construir y ejecutar la imagen del backend utilizando este Dockerfile, sigue estos pasos:
-
-1. Ve a la carpeta `backend`:
-   ```bash
-   cd backend
-   ```
-2. Construye la imagen del backend:
-   ```bash
-   docker build -t backend-image .
-   ```
-3. Ejecuta el contenedor del backend:
-   ```bash
-   docker run -d -p 3000:3000 --name backend-container backend-image
-   ```
-   - Esto expone el backend en el puerto `3000`.
-
----
-
 ## Frontend
 
 ### Tecnologías usadas
@@ -274,6 +197,10 @@ Para construir y ejecutar la imagen del backend utilizando este Dockerfile, sigu
 ### Variables de entorno necesarias
 Crea un archivo `.env` en la carpeta `frontend` con las siguientes variables:
 ```
+# En producción con Render, personalizar con la URL de la API
+# VITE_API_URL=https://tu-backend-en-render.com/api
+
+# Para pruebas en local
 VITE_API_URL=http://localhost:3000/api
 ```
 
@@ -324,21 +251,6 @@ El backend tiene su propio Dockerfile ubicado en `backend/Dockerfile`. Este arch
 ### **Sistema Completo**
 El sistema completo (backend y frontend) está definido en el Dockerfile ubicado en la raíz del proyecto (`Dockerfile`). Este archivo combina ambos servicios en una sola imagen.
 
-#### **Construir y ejecutar el sistema completo con Docker**
-1. Ve a la carpeta raíz del proyecto:
-   ```bash
-   cd app_fullstack
-   ```
-2. Construye la imagen del sistema completo:
-   ```bash
-   docker build -t fullstack-image .
-   ```
-3. Ejecuta el contenedor del sistema completo:
-   ```bash
-   docker run -d -p 80:80 --name fullstack-container fullstack-image
-   ```
-   - Esto expone el sistema completo en el puerto `80`.
-
 ### **Dockerfile del Sistema Completo**
 
 El Dockerfile del sistema completo está diseñado para crear una imagen ligera y eficiente utilizando Node.js del sistema FullStack completo. A continuación, se detalla su contenido y pasos para su uso.
@@ -380,23 +292,6 @@ CMD ["npm", "start"]
 7. **Variables de entorno**: Se establece `NODE_ENV=production` para optimizar el rendimiento en producción.
 8. **Comando de inicio**: Se utiliza `npm start` para iniciar el servidor del backend.
 
-#### **Construcción y ejecución**
-Para construir y ejecutar la imagen del sistema completo utilizando este Dockerfile, sigue estos pasos:
-
-1. Ve a la carpeta raíz del proyecto:
-   ```bash
-   cd app_fullstack
-   ```
-2. Construye la imagen del sistema completo:
-   ```bash
-   docker build -t fullstack-system .
-   ```
-3. Ejecuta el contenedor del sistema completo:
-   ```bash
-   docker run -d -p 3000:3000 --name fullstack-container fullstack-system
-   ```
-   - Esto expone el sistema completo en el puerto `3000`.
-
 ### **Comandos utilizados para Docker**
 
 #### **Construir la imagen del sistema completo**
@@ -405,6 +300,19 @@ docker build -t app_fullstack .
 ```
 
 #### **Ejecutar el contenedor del sistema completo**
+
+- **Staging** Uso del `.env.staging`. Entorno de pruebas con contenedor Docker en local
+```bash
+docker run -p 3000:3000 \
+  --env-file backend/.env.staging \
+  --env-file frontend/.env \
+  app_fullstack
+```
+- Este comando utiliza los archivos de variables de entorno específicos para el backend y el frontend.
+- Expone el sistema completo en el puerto `3000`.
+
+
+- **Production** Uso del `.env.production`. Emula el entorno de producción con contenedor Docker en local + datos de BBDD postgreSQL desplegada en la nube (Render)
 ```bash
 docker run -p 3000:3000 \
   --env-file backend/.env.production \
@@ -413,82 +321,3 @@ docker run -p 3000:3000 \
 ```
 - Este comando utiliza los archivos de variables de entorno específicos para el backend y el frontend.
 - Expone el sistema completo en el puerto `3000`.
-
----
-
-## **Variables de Entorno**
-
-Para que el sistema funcione correctamente, es necesario configurar las siguientes variables de entorno:
-
-### **Backend**
-Crea un archivo `.env.production` en la carpeta `backend` con las siguientes variables:
-```env
-PORT=3000
-PG_USER=postgres
-PG_PASSWORD=123456
-# Esta es la IP local de tu ordenador
-PG_HOST=192.168.0.21
-PG_DATABASE=postgres
-PG_PORT=5432
-PG_SSL=false
-```
-
-### **Frontend**
-Crea un archivo `.env` en la carpeta Frontend
-```env
-# Variables del frontend
-VITE_API_URL=http://localhost:3000/api
-```
-
-## **Comandos del package.json en la carpeta raíz**
-
-El archivo `package.json` en la carpeta raíz contiene varios scripts que facilitan la gestión del proyecto. A continuación, se explica la funcionalidad de cada uno de ellos:
-
-#### **Scripts**
-
-1. **`install`**
-   ```bash
-   npm run install
-   ```
-   - Este comando instala las dependencias tanto del backend como del frontend.
-   - Utiliza el flag `--prefix` para especificar las carpetas correspondientes.
-
-2. **`start:backend`**
-   ```bash
-   npm run start:backend
-   ```
-   - Inicia el servidor del backend ejecutando el script `start` definido en el `package.json` del backend.
-
-3. **`start:frontend`**
-   ```bash
-   npm run start:frontend
-   ```
-   - Construye el frontend y luego lo inicia.
-   - Ejecuta el script `build` seguido del script `start` definidos en el `package.json` del frontend.
-
-4. **`start`**
-   ```bash
-   npm run start
-   ```
-   - Inicia tanto el backend como el frontend de manera concurrente.
-   - Utiliza la dependencia `concurrently` para ejecutar los scripts `start:backend` y `start:frontend` al mismo tiempo.
-
-5. **`build`**
-   ```bash
-   npm run build
-   ```
-   - Construye el frontend ejecutando el script `build` definido en su `package.json`.
-
-6. **`test`**
-   ```bash
-   npm run test
-   ```
-   - Este comando está configurado como un placeholder y actualmente no ejecuta pruebas.
-   - Devuelve un mensaje indicando que no hay pruebas especificadas.
-
-7. **`dev`**
-   ```bash
-   npm run dev
-   ```
-   - Inicia el backend y el frontend en modo de desarrollo de manera concurrente.
-   - Utiliza `concurrently` para ejecutar los scripts `dev` definidos en los `package.json` de ambas carpetas.
